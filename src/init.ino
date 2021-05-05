@@ -5,22 +5,25 @@
 //硬件初始化
 void hardware_init()
 {
-  
+  //IO设定
   pinMode     (13, OUTPUT); //KEY引脚
   digitalWrite(13,LOW); 
- // digitalWrite(13,HIGH); 
   pinMode     (MODEM_POWER_ON, OUTPUT); //电源引脚
-  digitalWrite(MODEM_POWER_ON,LOW);
   pinMode     (33, OUTPUT); //LED引脚
-  //digitalWrite(33,LOW); 
   digitalWrite(33,HIGH);
-
-  //保持升压芯片持续工作
-  PowerManagment();
-  //电量检测及欠压报警检测
-  power_alarm_test();
-  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
-  //adcStart(BATTERY_ADC_PIN);     //在连接的引脚总线上开始ADC转换
+  //串口设定
+  SerialMon.begin(115200); //初始化调试串口
+  SerialMon.printf("/**************************************************************/\n");
+  SerialAT.begin(115200, SERIAL_8N1, MODEM_RX, MODEM_TX); //初始化AT串口
+  //I2C设置
+   Wire.begin();
+  
+  sht20.begin();//溫濕度傳感器初始化
+  EEPROM.begin(4096);//E2PROM初始化
+  SPIFFS.begin();
+  display.init();
+  display.flipScreenVertically();
+  key_init();
 
   bool i;
   //初始化DS1302引脚
@@ -28,20 +31,19 @@ void hardware_init()
   i=ds_rtc.isHalted();//检查运行DS1302
   if(i) ds_rtc.halt(0);//启动1302
 
-  Wire.begin();
-  SerialMon.begin(115200); //初始化调试串口
-  SerialMon.printf("/**************************************************************/\n");
+ 
   //唤醒方式
   Serial.print("esp_sleep_get_wakeup_cause");
   Serial.println(esp_sleep_get_wakeup_cause());
-  SerialAT.begin(115200, SERIAL_8N1, MODEM_RX, MODEM_TX); //初始化AT串口
-  sht20.begin();//溫濕度傳感器初始化
-  EEPROM.begin(4096);//E2PROM初始化
-  SPIFFS.begin();
-  display.init();
-  display.flipScreenVertically();
-  key_init();
   
+  
+
+   //保持升压芯片持续工作
+  PowerManagment();
+  //电量检测及欠压报警检测
+  power_alarm_test(10);
+  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
+  //adcStart(BATTERY_ADC_PIN);     //在连接的引脚总线上开始ADC转换
   
 }
 /*----------------------------------------------------------

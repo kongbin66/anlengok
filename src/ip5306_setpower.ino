@@ -69,13 +69,14 @@ int8_t getBatteryLevel()
   {
     switch (Wire.read() & 0xF0)
     {
-    case 0xE0:
+     
+    case 0xE0 ... 0xff:    
       return 25;
-    case 0xC0:
+    case 0xC0 ... 0xdf:
       return 50;
-    case 0x80:
+    case 0x80 ... 0xbf:
       return 75;
-    case 0x00:
+    case 0x00 ... 0x7f:
       return 100;
     default:
       return 0;
@@ -93,20 +94,21 @@ int8_t getBatteryLevel()
       75： 3/4
       100：4/4
 ***********************************************************/
-extern int8_t fun_Refresh_lcon(int8_t x) //刷新更改图标
+extern int8_t fun_Refresh_lcon(int x) //刷新更改图标
 {
   int8_t i = -2;
+ 
   switch (x)
   {
   case -1:
     return -1; //未读取到电量(异常)
-  case 0:
+  case 0 ... 24:
     p1 = F16x16_b0, i = 0;
     break;
-  case 25:
+  case 25 ... 74:
     p1 = F16x16_b20, i = 25;
     break;
-  case 75:
+  case 75 ... 99:
     p1 = F16x16_b60, i = 75;
     break;
   case 100:
@@ -116,26 +118,43 @@ extern int8_t fun_Refresh_lcon(int8_t x) //刷新更改图标
     i = -2; //其他不正确结果(异常)
     break;
   }
+  
   return i;
 }
 
 //电量检测与电量低报警检测
 /* 1.采集芯片电量，刷新屏显示，电量低于系统设定温度时，更新报警标志POWER_warning_flag */
-void power_alarm_test()
+
+void power_alarm_test(uint8_t x)
 {
   //
+  int i=0,j=0;
+  uint32_t k=0;
   float temp = 0;
-  uint8_t i = getBatteryLevel();
+
   SerialMon.print("power_test...");
-  while (i == -1)
+  temp =
+  k=0;
+  for(j=0;j<x;j++)
   {
-    i = getBatteryLevel();
-    SerialMon.print(".");
-    delay(500);
+      i = getBatteryLevel();
+      while(i==(-1)||i==0)
+      {
+         i = getBatteryLevel();
+         delay(100);
+
+      }
+      Serial.printf("add i:%d\n",i);
+      k += i;
+      
   }
-  SerialMon.println(F("power_test[ok!]"));
+  i=k/j;
+   Serial.printf("K:%d\n",k);
+   Serial.printf("j:%d\n",j);
+   Serial.printf("power_test[ok!]:%d\n",i);
   //刷新屏幕显示电量
   fun_Refresh_lcon(i);
+   
   if (i <= 25)
   {
     temp = getBatteryFromADC();   //读取电压
@@ -149,6 +168,9 @@ void power_alarm_test()
       POWER_warning_flag = 0;
   }
 }
+
+
+
 
 /* //电池电量ADC采集
 float battery_ADC()

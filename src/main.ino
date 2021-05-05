@@ -53,7 +53,7 @@ void setup()
 {
   gpio_hold_dis(GPIO_NUM_32); //解锁电源引脚
   gpio_deep_sleep_hold_dis();
-  pinMode     (33, OUTPUT); //LED引脚
+
   hardware_init(); //硬件初始化
   software_init(); //软件初始化
 
@@ -99,7 +99,11 @@ void loop()
   ii++;
   if(ii%10==0)digitalWrite(33,LOW); 
   if(ii%5==0)digitalWrite(33,HIGH);
-  
+  if(ii%50==0)
+  {
+     power_alarm_test(10);
+  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
+  }
   if (POWER_warning_flag)
   {
     Serial.println("dianliaodi!");

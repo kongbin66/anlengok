@@ -24,7 +24,7 @@ uint32_t sys_sec=0;
 
 #define IP5306_ADDR 0x75
 #define IP5306_REG_SYS_CTL0 0x00
-#define Power_min_voltage 1.2//设定最小关机电压
+#define Power_min_voltage 3.6//设定最小关机电压
 
 float bat_mv;//电池电压
 uint8_t POWER_warning_flag;//电压报警标志 0：正常 1：欠压
@@ -34,8 +34,8 @@ void PowerManagment();//保持升压芯片持续工作
 int8_t getBatteryLevel();//检测电池电量等级
 int8_t fun_Refresh_lcon(int8_t x); //刷新更改图标
 float getBatteryFromADC();/* //读取电池端实时电压*/
-void power_alarm_test();//电量检测与电量低报警检测
-void Power_test(float );  //确定电量最小值
+void power_alarm_test(uint8_t x);//电量检测与电量低报警检测
+void Power_test(float );  //确定电量最小值;
 
 /*-------------------------------出厂设置定义-------------------------------------*/
 
