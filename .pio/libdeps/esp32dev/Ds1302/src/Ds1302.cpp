@@ -13,15 +13,15 @@
 
 #include <Arduino.h>
 //ds1302寄存器
-#define REG_SECONDS           0x80
-#define REG_MINUTES           0x82
-#define REG_HOUR              0x84
-#define REG_DATE              0x86
-#define REG_MONTH             0x88
-#define REG_DAY               0x8A
-#define REG_YEAR              0x8C
-#define REG_WP                0x8E
-#define REG_BURST             0xBE
+#define REG_SECONDS           0x80 //秒寄存器
+#define REG_MINUTES           0x82 //分寄存器
+#define REG_HOUR              0x84 //小时寄存器
+#define REG_DATE              0x86 //日期寄存器
+#define REG_MONTH             0x88  //月寄存器
+#define REG_DAY               0x8A  //天寄存器
+#define REG_YEAR              0x8C  //年寄存器
+#define REG_WP                0x8E  //控制寄存器
+#define REG_BURST             0xBE   //时钟脉冲
 
 
 Ds1302::Ds1302(uint8_t pin_ena, uint8_t pin_clk, uint8_t pin_dat)
