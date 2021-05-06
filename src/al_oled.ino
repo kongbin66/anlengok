@@ -151,12 +151,12 @@ void showTips_Screen()
   display.drawXbm(0, 32, 14, 16, tips_shuang);
   display.drawXbm(14, 32, 14, 16, tips_ji2);
   display.drawString(28, 32, ":");
-  display.drawXbm(36, 32, 14, 16, tips_jin);
-  display.drawXbm(50, 32, 14, 16, tips_ru);
-  display.drawXbm(64, 32, 14, 16, tips_lan);
-  display.drawXbm(78, 32, 14, 16, tips_ya);
-  display.drawXbm(92, 32, 14, 16, tips_pei);
-  display.drawXbm(106, 32, 14, 16, tips_dui);
+  display.drawXbm(36, 32, 14, 16, tips_kai);
+  display.drawXbm(50, 32, 14, 16, tips_guan);
+  display.drawXbm(64, 32, 14, 16, tips_fei);
+  display.drawXbm(78, 32, 14, 16, tips_xing);
+  display.drawXbm(92, 32, 14, 16, tips_mo);
+  display.drawXbm(106, 32, 14, 16, tips_shik);
   display.drawCircleQuads(52, 57, 6, 6);
   display.drawHorizontalLine(52, 51, 25);
   display.drawHorizontalLine(52, 63, 25);
