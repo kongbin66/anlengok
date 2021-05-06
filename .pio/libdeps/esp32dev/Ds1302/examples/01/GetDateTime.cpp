@@ -13,7 +13,7 @@
 
 
 // DS1302 RTC instance
-Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
+
 
 
 const static char* WeekDays[] =

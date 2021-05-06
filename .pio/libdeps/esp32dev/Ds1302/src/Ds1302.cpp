@@ -23,7 +23,7 @@
 #define REG_WP                0x8E  //控制寄存器
 #define REG_BURST             0xBE   //时钟脉冲
 
-
+//构造函数 设置ds1302管脚
 Ds1302::Ds1302(uint8_t pin_ena, uint8_t pin_clk, uint8_t pin_dat)
 {
     _pin_ena = pin_ena;
@@ -31,8 +31,6 @@ Ds1302::Ds1302(uint8_t pin_ena, uint8_t pin_clk, uint8_t pin_dat)
     _pin_dat = pin_dat;
     _dat_direction = INPUT;
 }
-
-
 void Ds1302::init()
 {
     pinMode(_pin_ena, OUTPUT);
@@ -43,7 +41,7 @@ void Ds1302::init()
     digitalWrite(_pin_clk, LOW);
 }
 
-
+//检查DS1302运行状态
 bool Ds1302::isHalted()
 {
     _prepareRead(REG_SECONDS);
@@ -86,17 +84,14 @@ void Ds1302::setDateTime(DateTime* dt)
 }
 
 
-void Ds1302::halt(int x)
+void Ds1302::halt()
 {
     _prepareWrite(REG_SECONDS);
-    if(x)
     _writeByte(0b10000000);//停止震荡
-    else
-    _writeByte(0b00000000);//启动震荡
     _end();
 }
 
-
+//准备读 ：发送读命令
 void Ds1302::_prepareRead(uint8_t address)
 {
     _setDirection(OUTPUT);
@@ -106,7 +101,7 @@ void Ds1302::_prepareRead(uint8_t address)
     _setDirection(INPUT);
 }
 
-
+//准备写 ： 发送写命令
 void Ds1302::_prepareWrite(uint8_t address)
 {
     _setDirection(OUTPUT);
@@ -115,13 +110,13 @@ void Ds1302::_prepareWrite(uint8_t address)
     _writeByte(command);
 }
 
-
+//读写操作完成，使ds1302恢复运行
 void Ds1302::_end()
 {
     digitalWrite(_pin_ena, LOW);
 }
 
-
+//读取一个字节
 uint8_t Ds1302::_readByte()
 {
     uint8_t byte = 0;
@@ -135,7 +130,7 @@ uint8_t Ds1302::_readByte()
     return byte;
 }
 
-
+//写一个字节
 void Ds1302::_writeByte(uint8_t value)
 {
     for(uint8_t b = 0; b < 8; b++)
@@ -145,17 +140,17 @@ void Ds1302::_writeByte(uint8_t value)
         value >>= 1;
     }
 }
-
+//clock操作
 void Ds1302::_nextBit()
 {
         digitalWrite(_pin_clk, HIGH);
-        delayMicroseconds(1);
+        delayMicroseconds(1);//系统延时us
 
         digitalWrite(_pin_clk, LOW);
         delayMicroseconds(1);
 }
 
-
+//设置data引脚方向
 void Ds1302::_setDirection(int direction)
 {
     if (_dat_direction != direction)
@@ -165,13 +160,13 @@ void Ds1302::_setDirection(int direction)
     }
 }
 
-
+//十进制转BDC
 uint8_t Ds1302::_dec2bcd(uint8_t dec)
 {
     return ((dec / 10 * 16) + (dec % 10));
 }
 
-
+//bcd转十进制
 uint8_t Ds1302::_bcd2dec(uint8_t bcd) 
 {
     return ((bcd / 16 * 10) + (bcd % 16));

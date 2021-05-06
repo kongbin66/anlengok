@@ -79,7 +79,7 @@ class Ds1302
          * Stops the oscillator. 软件停止振荡器。
          * 1停止 0启动
          */
-        void halt(int x);
+        void halt();
 
         /**
          * Returns the current date and time.返回当前日期和时间。
