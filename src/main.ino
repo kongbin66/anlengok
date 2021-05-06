@@ -4,6 +4,7 @@ TaskHandle_t task1; //第二核创建一个任务句柄
 TaskHandle_t ds_task;
 TaskHandle_t xieyi_task;
 
+
 int rollback = 0;
 
 //第二核创建任务代码
@@ -57,9 +58,9 @@ void setup()
   hardware_init(); //硬件初始化
   software_init(); //软件初始化
 
-  xTaskCreate(xieyi_Task, "xieyi_Task", 3000, NULL, 2, &xieyi_task); //创建DS1302任务
-  xTaskCreate(ds1302_task, "ds1302_task", 2000, NULL, 2, &ds_task);  //创建DS1302任务
-  xTaskCreatePinnedToCore(codeForTask1, "task1", 1000, NULL, 2, &task1, 0);
+  xTaskCreatePinnedToCore(xieyi_Task, "xieyi_Task", 3000, NULL, 2, &xieyi_task,tskNO_AFFINITY); //创建DS1302任务
+  xTaskCreatePinnedToCore(ds1302_task, "ds1302_task", 2000, NULL, 2, &ds_task,tskNO_AFFINITY);  //创建DS1302任务
+  xTaskCreatePinnedToCore(codeForTask1, "task1", 1000, NULL, 2, &task1, tskNO_AFFINITY);
   if (rollback)
   {
     /*************如果rollback置1, 会恢复出厂设置,数据全清***********/
@@ -99,15 +100,8 @@ void loop()
   ii++;
   if(ii%10==0)digitalWrite(33,LOW); 
   if(ii%5==0)digitalWrite(33,HIGH);
-  if(ii%50==0)
-  {
-     power_alarm_test(10);
-  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
-  }
-  if (POWER_warning_flag)
-  {
-    Serial.println("dianliaodi!");
-  }
+
+
   if (oledState == OLED_ON)
   {
     sht20getTempAndHumi();

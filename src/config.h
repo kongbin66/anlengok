@@ -1,11 +1,13 @@
 #if !defined(CONFIG_H)
 #define CONFIG_H
+uint8_t dbug =0;//调试开关
+#define TINY_GSM_MODEM_SIM800 //引入TinyGSM库. 在引入之前要定义好TINY_GSM_MODEM_SIM800,让它知道我们用的模块型号
+
+/***************************头文件******************************************/
 #include "Arduino.h"
 #include <esp_sleep.h>
 #include "Wire.h"
 #include "uFire_SHT20.h"
-#define TINY_GSM_MODEM_SIM800 // Modem is SIM800
-//引入TinyGSM库. 在引入之前要定义好TINY_GSM_MODEM_SIM800,让它知道我们用的模块型号
 #include <TinyGsmClient.h>
 #include "PubSubClient.h"
 #include "SPIFFS.h"
@@ -16,31 +18,46 @@
 #include <Ds1302.h>
 #include "xieyi.h"
 #include "ArduinoJson.h"
-uint8_t dbug =0;
+
+
+
+
+
+
+
+
 uint32_t unixtime(void) ;
 uint32_t sys_sec=0;
 
 /********************电量采集相关*************************************/
 
+#define BATTERY_ADC_PIN  36    //电量ADC采集管脚后续改到ADC1上，避免影响WIFI
+
 #define IP5306_ADDR 0x75
 #define IP5306_REG_SYS_CTL0 0x00
-#define Power_min_voltage 3.6//设定最小关机电压
+#define Power_min_voltage 3.3//设定最小关机电压
 
-float bat_mv;//电池电压
+#define grade30 3.4
+#define grade50 3.5
+#define grade80 3.7
+#define grade100 4.2
+
+
+
 uint8_t POWER_warning_flag;//电压报警标志 0：正常 1：欠压
 extern const char *p1;//电量图标显示
 
 void PowerManagment();//保持升压芯片持续工作
-int8_t getBatteryLevel();//检测电池电量等级
-int8_t fun_Refresh_lcon(int8_t x); //刷新更改图标
-float getBatteryFromADC();/* //读取电池端实时电压*/
-void power_alarm_test(uint8_t x);//电量检测与电量低报警检测
-void Power_test(float );  //确定电量最小值;
+uint8_t getBatteryLevel(float x);
+void power_alarm_test();//电量检测与电量低报警检测
+
+
+
+
 
 /*-------------------------------出厂设置定义-------------------------------------*/
 
 #define FACTORY_SLEEPTIME   30     // 300000000    //休眠时间        只适用一次
-
 #define FACTORY_TEMP_LIMIT_ENABLE 0    //出厂温度上下限失能
 #define FACTORY_TEMP_UPPER_LIMIT 50.0  //出厂温度上限
 #define FACTORY_TEMP_LOWER_LIMIT -40.0 //出厂温度下限
@@ -51,41 +68,61 @@ void Power_test(float );  //确定电量最小值;
 #define FACTORY_TIME_MIN 0             //出厂默认时间
 
 
+
+
+
 /*-------------------------------SIM800L 硬件定义----------------------------------*/
+
 #define MODEM_RST 5      //SIM800L复位引脚接在GPIO5
 //#define MODEM_PWRKEY  //SIM800L开关机引脚接在GPIO32
 #define MODEM_POWER_ON 32 //SIM800L电源引脚接在GPIO4
 #define MODEM_TX 27       //SIM800L串口TX引脚接在GPIO27
 #define MODEM_RX 26       //SIM800L串口RX引脚接在GPIO26
+
+
+
+
+
+/**********************************ds1302相关**************************************/
 //ds1302驱动引脚
 #define PIN_ENA 5
 #define PIN_CLK 19
 #define PIN_DAT 18
-//LED管脚
-#define LED 33
+//创建DS1302对象
+Ds1302 ds_rtc(PIN_ENA, PIN_CLK, PIN_DAT);
+Ds1302::DateTime now1;//ds1302读取的时间
+
+
+
+
+
 /*-------------------------------其他硬件定义-------------------------------------*/
 #define SerialMon Serial      //调试串口为UART0
 #define SerialAT  Serial1      //AT串口为UART1
+#define LED 33//LED管脚
+
+
+
+
+
+
+
+/*-------------------------------显示/按键相关定义-------------------------------------*/
+
 #define KEY1      14            //按键1对应引脚
 #define WEAKUPKEY1 GPIO_NUM_14 //按键1对应引脚
-#define BATTERY_ADC_PIN  36    //电量ADC采集管脚后续改到ADC1上，避免影响WIFI
-//创建DS1302对象
-Ds1302 ds_rtc(PIN_ENA, PIN_CLK, PIN_DAT);
-//RTC_Millis rtc;
 
-Ds1302::DateTime now1;//ds1302读取的时间
-/*-------------------------------显示/按键相关定义-------------------------------------*/
 OneButton button(KEY1, true);
 SH1106Wire display(0x3c, 21, 22);
-//state of OLED
+
+//OLED状态
 #define OLED_ON 1
 #define OLED_OFF 0
-//define state of workingState
-//停止工作
-#define NOT_WORKING 0
-//工作
-#define WORKING 1
-//state of Screens
+
+//工作状态
+#define NOT_WORKING 0//停止工作
+#define WORKING 1//工作
+//显示状态
 #define MAIN_TEMP_SCREEN 0
 #define MAIN_HUMI_SCREEN 1
 #define TIPS_SCREEN 2
@@ -99,7 +136,7 @@ SH1106Wire display(0x3c, 21, 22);
 #define REC_COUNT_SCREEN 11
 #define fxmod_ON 12
 #define fxmod_OFF 13
-//state of key
+//按键状态
 #define NOKEYDOWN 0
 #define CLICK 1
 #define DOUBLECLICK 2
@@ -135,7 +172,7 @@ time_t now_rec_stamp;                  //计算现在记录时间
 
 
 
-//设备码
+/*******************************设备码***********************************/
 #if 1
 const char *mqtt_server = "218.201.45.7"; //onenet 的 IP地址
 const int port = 1883;                     //端口号
@@ -247,12 +284,10 @@ bool getLBSLocation();
 
 
 
-// char msgJson[256]; //要发送的json格式的数据
-// char dataTemplate[] = "{\"id\":\"123\",\"params\":{\"temp\":{\"value\":%.2f},\"humi\":{\"value\":%.2f},\"le\":{\"value\":%.2f},\"ln\":{\"value\":%.2f}}}";
+
 void onenet_connect();
 void sendTempAndHumi();
-// void onenet_mqtts_connect();
-// void onenet_mqtts_sendTemp_Humi_LBS();
+
 /*-------------------------------休眠服务相关al_sleep.ino---------------------*/
 void go_sleep_a_while_with_ext0();//进入休眠
 

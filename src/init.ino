@@ -16,7 +16,7 @@ void hardware_init()
   SerialMon.printf("/**************************************************************/\n");
   SerialAT.begin(115200, SERIAL_8N1, MODEM_RX, MODEM_TX); //初始化AT串口
   //I2C设置
-   Wire.begin();
+  Wire.begin();
   
   sht20.begin();//溫濕度傳感器初始化
   EEPROM.begin(4096);//E2PROM初始化
@@ -24,12 +24,13 @@ void hardware_init()
   display.init();
   display.flipScreenVertically();
   key_init();
-
-  bool i;
+  //ds_rtc.Ds1302(uint8_t pin_ena, uint8_t pin_clk, uint8_t pin_dat);
+  
+  //bool i;
   //初始化DS1302引脚
   ds_rtc.init();
-  i=ds_rtc.isHalted();//检查运行DS1302
-  if(i) ds_rtc.halt(0);//启动1302
+  // i=ds_rtc.isHalted();//检查运行DS1302
+  // if(i) ds_rtc.setDateTime(&now1);
 
  
   //唤醒方式
@@ -37,12 +38,17 @@ void hardware_init()
   Serial.println(esp_sleep_get_wakeup_cause());
   
   
-
+  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
    //保持升压芯片持续工作
   PowerManagment();
+ 
   //电量检测及欠压报警检测
-  power_alarm_test(10);
-  adcAttachPin(BATTERY_ADC_PIN); //将引脚连接到ADC
+  power_alarm_test();
+    if (POWER_warning_flag)
+  {
+    Serial.println("dianliaodi!");
+  }
+
   //adcStart(BATTERY_ADC_PIN);     //在连接的引脚总线上开始ADC转换
   
 }
