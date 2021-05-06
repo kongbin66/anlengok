@@ -163,8 +163,36 @@ void power_alarm_test()
 
 
 
-
-
+//这种方式已经测试过可以使用，以后备用。
+//数据手册上给的I2C地址0xea是错误的，地址是0x75
+//int lastbattery = -1;
+// void displayBatteryLevel2()
+// {
+   
+//         int battlevel = 0;
+//         byte retval;
+//         Wire.beginTransmission(0x75);
+//         Wire.write(0x78);
+//         if (Wire.endTransmission(false) == 0 && Wire.requestFrom(0x75, 1)) 
+//         {
+//             retval = Wire.read() & 0xF0;
+//             if (retval == 0xE0) battlevel = 25;
+//             else if (retval == 0xC0) battlevel = 50;
+//             else if (retval == 0x80) battlevel = 75;
+//             else if (retval == 0x00) battlevel = 100;
+//         }
+//         Serial.printf("retval:%d\n",retval);
+//         Serial.printf("battlevel:%d\n",battlevel);
+//         if (lastbattery != battlevel)
+//         {
+         
+//             if (battlevel <= 25)
+//                 Serial.printf("小于25\n");
+//             else
+//                 Serial.printf("大于\n");
+//             lastbattery = battlevel;
+//         }
+// }
 
 
 
